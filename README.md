@@ -19,8 +19,7 @@
 {
   "login": "string",
   "hashed_password": "string",
-  "email": "string",
-  "is_active": true
+  "email": "string"
 }
 ```
 
