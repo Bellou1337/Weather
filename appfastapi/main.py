@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import auth
+from .routers import auth, db_router
 
 app = FastAPI()
 app.include_router(
@@ -7,6 +7,8 @@ app.include_router(
     prefix="/auth",
     tags=["auth"]
 )
+
+app.include_router(db_router.router)
 
 @app.get('/')
 async def root():

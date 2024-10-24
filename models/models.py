@@ -13,7 +13,7 @@ user = Table(
     Column("registered_at",TIMESTAMP, default = datetime.utcnow()),
     Column("response",Integer,ForeignKey("request.id")),
     Column("date_knockout",TIMESTAMP, default = datetime.utcnow()),
-    Column("profile_img",String, nullable = True), 
+    Column("profile_img",String), 
     Column("is_active",Boolean, default = True, nullable = False),
     Column("is_superuser",Boolean, default = False, nullable = False),
     Column("is_verified",Boolean, default = False, nullable = False),
