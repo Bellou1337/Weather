@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from .routers import auth, db_router
 
-app = FastAPI()
+app = FastAPI(
+    title = "Weather API"
+)
+
 app.include_router(
     auth.router,
     prefix="/auth",
