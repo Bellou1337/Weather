@@ -6,3 +6,4 @@ README
 .todo
 alembic
 alembic.ini
+.env
