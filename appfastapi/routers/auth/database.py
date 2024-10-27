@@ -3,12 +3,14 @@ from typing import AsyncGenerator
 from fastapi import Depends
 from fastapi_users.db import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase
 
-from sqlalchemy import Integer, Column, String, TIMESTAMP, JSON, ForeignKey, Boolean, ARRAY
-from datetime import datetime, timezone
+from sqlalchemy import Integer, Column, String, TIMESTAMP, Boolean, ARRAY
+from datetime import datetime
+from ...config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
 
-DATABASE_URL = f"postgresql+asyncpg://postgres:123@localhost:5432/test"
+
+DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 class Base(DeclarativeBase):
     pass
