@@ -64,7 +64,7 @@ async def get_img(user_id: int, session: AsyncSession = Depends(get_async_sessio
 
 @router.get("/user_request")
 async def get_requests(user_id : int, session: AsyncSession = Depends(get_async_session)):
-    querry = select(request.c.city_name,request.c.date_request,request.c.responce).where(request.c.id == user_id)
+    querry = select(request.c.city_name,request.c.date_request,request.c.responce).where(request.c.user_id == user_id)
     result = await session.execute(querry)
     user_data = result.fetchall()
     
@@ -104,6 +104,7 @@ async def set_new_img(user_data: ChangeImg, session: AsyncSession = Depends(get_
     
     return {"status": "image update"}
 
+
 @router.post("/change_email")
 async def set_new_email(user_data: ChangeEmail, session: AsyncSession = Depends(get_async_session)):
     querry = update(user).where(user.c.id == user_data.user_id).values(email = user_data.new_email)
@@ -117,3 +118,4 @@ async def set_new_email(user_data: ChangeEmail, session: AsyncSession = Depends(
         )
         
     return {"status": "email update"}  
+
