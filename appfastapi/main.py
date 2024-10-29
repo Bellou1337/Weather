@@ -1,12 +1,12 @@
 from fastapi import FastAPI
-from .routers import auth, db_router
+from appfastapi.routers import auth_router, db_router
 
 app = FastAPI(
     title = "Weather API"
 )
 
 app.include_router(
-    auth.router,
+    auth_router.router,
     prefix="/auth",
     tags=["auth"]
 )

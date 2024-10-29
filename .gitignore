@@ -1,6 +1,9 @@
 venv
 __pycache__
 script.py.mako
-README
 .vscode/PythonImportHelper-v2-Completion.json
 .todo
+alembic
+alembic.ini
+config.ini
+

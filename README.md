@@ -5,9 +5,9 @@
 | Метод                                                                             | Описание
 |-----------------------------------------------------------------------------------|----------------------------------------------|
 | [`/db/user_info?user_id={id}`](#1-получение-неполной-информации-о-пользователе)   | Получение неполной информации о пользователе |
-| [`/db/user_info_all?user_id={id}`](#2-получение-полной-информации-о-пользователе)  | Получение полной информации о пользователе   |
-| [`/db/user_img?user_id={id}`](#3-получение-пути-фотографии-пользователя)           | Получение пути фотографии пользователя       |
-| [`/db/user_request?user_id={id}`](#4-получение-реквестов-по-id)                    | Получение пути фотографии пользователя       |
+| [`/db/user_info_all?user_id={id}`](#2-получение-полной-информации-о-пользователе) | Получение полной информации о пользователе   |
+| [`/db/user_img?user_id={id}`](#3-получение-пути-фотографии-пользователя)          | Получение пути фотографии пользователя       |
+| [`/db/user_request?user_id={id}`](#4-получение-реквестов-по-id)                   | Получение пути фотографии пользователя       |
 | [`/db/change_password`](#5-изменение-пароля)                                      | Изменение пароля                             |
 | [`/db/change_img`](#6-изменение-фотографии)                                       | Изменение фотографии                         |
 | [`/db/change_email`](#7-изменение-почты)                                          | Изменение почты                              |
@@ -24,7 +24,7 @@
   "login": "string",
   "hashed_password": "string",
   "email": "string",
-  "is_active": boolean
+  "is_active": "boolean"
 }
 ```
 
@@ -45,12 +45,12 @@
   "email": "string",
   "login": "string",
   "hashed_password": "string",
-  "registered_at": datetime,
-  "date_knockout": datetime,
+  "registered_at": "datetime",
+  "date_knockout": "datetime",
   "profile_img": "string",
-  "is_active": boolean,
-  "is_superuser": boolean,
-  "is_verified": boolean
+  "is_active": "boolean",
+  "is_superuser": "boolean",
+  "is_verified": "boolean"
 }
 ```
 
@@ -90,8 +90,8 @@
   [
     {
       "city_name": "string",
-      "date_request": datetime,
-      "Response": JSON
+      "date_request": "datetime",
+      "Response": "JSON"
     }
   ]
 }
@@ -112,7 +112,7 @@
 **Request Body**:
 ```json
 {
-  "user_id": int,
+  "user_id": "int",
   "new_password": "string"
 }
 ```
@@ -139,7 +139,7 @@
 **Request Body**:
 ```json
 {
-  "user_id": int,
+  "user_id": "int",
   "new_img_path": "string"
 }
 ```
@@ -166,7 +166,7 @@
 **Request Body**:
 ```json
 {
-  "user_id": int,
+  "user_id": "int",
   "new_email": "string"
 }
 ```

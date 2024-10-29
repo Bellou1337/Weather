@@ -1,6 +1,19 @@
-from fastapi_users import schemas
+from pydantic import BaseModel
 from typing import Optional
 from pydantic.networks import EmailStr
+from fastapi_users import schemas
+
+class ChangePswrd(BaseModel):
+    user_id : int
+    new_password : str
+
+class ChangeImg(BaseModel):
+    user_id : int
+    new_img_path: str
+    
+class ChangeEmail(BaseModel):
+    user_id : int
+    new_email : str
 
 class UserRead(schemas.BaseUser[int]):
     id: int

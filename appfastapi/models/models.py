@@ -1,4 +1,4 @@
-from sqlalchemy import MetaData, Table, Integer, Column, String, TIMESTAMP, JSON, ARRAY, Boolean
+from sqlalchemy import MetaData, Table, Integer, Column, String, TIMESTAMP, JSON, ARRAY, Boolean, CheckConstraint
 from datetime import datetime
 
 meta_data = MetaData()
@@ -17,6 +17,7 @@ user = Table(
     Column("is_active", Boolean, default=True, nullable=False),
     Column("is_superuser", Boolean, default=False, nullable=False),
     Column("is_verified", Boolean, default=False, nullable=False),
+    CheckConstraint("LENGTH(email) >=6 AND LENGTH(email) <=255", name = "email_length_check")
 )
 
 request = Table(
