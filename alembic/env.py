@@ -5,8 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from appfastapi.models.models import meta_data
-from appfastapi.config.config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
+from appfastapi.models import meta_data
+from appfastapi.config import config as app_conf
 
 
 # this is the Alembic Config object, which provides
@@ -14,11 +14,11 @@ from appfastapi.config.config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
 config = context.config
 section = config.config_ini_section
 
-config.set_section_option(section,"DB_HOST",DB_HOST)
-config.set_section_option(section,"DB_NAME",DB_NAME)
-config.set_section_option(section,"DB_PASS",DB_PASS)
-config.set_section_option(section,"DB_PORT",DB_PORT)
-config.set_section_option(section,"DB_USER",DB_USER)
+config.set_section_option(section,"DB_HOST", app_conf['Database']['DB_HOST'])
+config.set_section_option(section,"DB_NAME", app_conf['Database']['DB_NAME'])
+config.set_section_option(section,"DB_PASS", app_conf['Database']['DB_PASS'])
+config.set_section_option(section,"DB_PORT", app_conf['Database']['DB_PORT'])
+config.set_section_option(section,"DB_USER", app_conf['Database']['DB_USER'])
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

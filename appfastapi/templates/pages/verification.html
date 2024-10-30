@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение аккаунта</title>
+</head>
+<body>
+    {% if status == "OK" %}
+        <h1>Вы успешно подтвердили аккаунт {{ user.login }}</h1>
+    {% elif status == "VERIFY_USER_BAD_TOKEN" %}
+        <h1>Указан неверный токен</h1>
+    {% elif status == "VERIFY_USER_ALREADY_VERIFIED" %}
+        <h1>Ваш аккаунт уже подтверждён</h1>
+    {% endif %}
+</body>
+</html>

@@ -1,11 +1,12 @@
 from typing import Optional
 
-from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, IntegerIDMixin
+from fastapi import Depends, Request, BackgroundTasks
+from fastapi_users import BaseUserManager, IntegerIDMixin, exceptions
 
 from appfastapi.database import User, get_user_db
 from appfastapi.config import config
 from appfastapi.smtp import SMTPSender
+from appfastapi.general_data import templates
 
 SECRET = "mycrutoisecret"
 
@@ -14,9 +15,17 @@ smtp_sender = SMTPSender(config["SMTP"]["server"], config["SMTP"]["port"], confi
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
-
+    
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         print(f"User {user.id} has registered.")
+        try:
+            await self.request_verify(user, request)
+        except (
+            exceptions.UserNotExists,
+            exceptions.UserInactive,
+            exceptions.UserAlreadyVerified,
+        ):
+            pass
 
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None
@@ -26,10 +35,18 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     async def on_after_request_verify(
         self, user: User, token: str, request: Optional[Request] = None
     ):
-        print(f"Verification requested for user {user.id}. Verification token: {token}")
+        html = templates.TemplateResponse(
+            request=request, name="email/verification.html", context={
+                "username": user.login,
+                "token": token
+                }
+        )
+        
+        smtp_sender.send_HTML_mail(user.email, "Вы вошли", html.body.decode())
 
     async def on_after_login(self, user: User, request = Optional[Request], response = None):
-        smtp_sender.sendmail(user.email, "Вы вошли", "Вы вкурся, что зашлогинились на нашем крутом сайте?")
+        pass
+
 
 
 async def get_user_manager(user_db=Depends(get_user_db)):

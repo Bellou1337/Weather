@@ -1,4 +1,5 @@
 import smtplib
+from email.message import EmailMessage
 
 class SMTPSender():
     _server: str
@@ -12,11 +13,27 @@ class SMTPSender():
         self._server = str(server)
         self._port = int(port)
 
-    def sendmail(self, to_email: str, subject: str, message: str):
+    def send_text_mail(self, to_email: str, subject: str, text_message: str):
         with smtplib.SMTP(self._server, self._port) as mail_server:
             mail_server.ehlo()
             mail_server.starttls()
             mail_server.ehlo()
             mail_server.login(self._email, self._password)
 
-            mail_server.sendmail(self._email, to_email, f"Subject: {subject}\n\n{message}".encode('utf-8'))
+            mail_server.sendmail(self._email, to_email, f"Subject: {subject}\n\n{text_message}".encode('utf-8'))
+    
+    def send_HTML_mail(self, to_email: str, subject: str, html: str):
+        msg = EmailMessage()
+        msg['Subject'] = subject
+        msg['From'] = self._email
+        msg['To'] = to_email
+        msg.add_header('Content-Type','text/html')
+        msg.set_payload(html)
+
+        with smtplib.SMTP(self._server, self._port) as mail_server:
+            mail_server.ehlo()
+            mail_server.starttls()
+            mail_server.ehlo()
+            mail_server.login(self._email, self._password)
+
+            mail_server.sendmail(self._email, to_email, msg.as_string().encode('utf-8'))

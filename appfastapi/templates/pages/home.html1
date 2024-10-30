@@ -9,13 +9,13 @@
     <h1>Home page</h1>
 
     {% if not user %}
-    <a href="{{ url_for('auth:login_page') }}">Login page</a>
+    <!-- <a href="{{ url_for('auth:login_page') }}">Login page</a> -->
     {% else %}
-    <form action="{{ url_for('auth:logout') }}" method="post" class="form-example">
+    <!-- <form action="{{ url_for('auth:logout') }}" method="post" class="form-example">
         <div class="form-example">
             <input type="submit" value="Logout" />
         </div>
-    </form>
+    </form> -->
     {% endif %}
 </body>
 </html>
