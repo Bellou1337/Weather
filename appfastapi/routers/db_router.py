@@ -1,11 +1,12 @@
 from fastapi import HTTPException, APIRouter, Depends, status
-from appfastapi.schemas.schemas import ChangePswrd, ChangeImg, ChangeEmail
 from sqlalchemy.ext.asyncio import AsyncSession
 from appfastapi.database.database import get_async_session
 from sqlalchemy import select, update
 from appfastapi.models.models import request, user
-from appfastapi.schemas.schemas import UserRead
+from appfastapi.schemas.schemas import UserRead, UserReadAll, UserImg, UserRequests, ChangePswrd, ChangeImg, ChangeEmail
 from appfastapi.auth.auth import fastapi_users
+from passlib.context import CryptContext
+from sqlalchemy.exc import IntegrityError
 
 router = APIRouter(
     prefix="/db",
@@ -16,95 +17,99 @@ current_user = fastapi_users.current_user()
 
 
 @router.get("/user_info", response_model=UserRead)
-async def get_user(user_info: UserRead = Depends(current_user)):
-
-    return user_info
-
-
-@router.get("/user_info_all")
-async def get_user_all(user_id: int, session: AsyncSession = Depends(get_async_session)):
-    querry = select(user.c.email, user.c.login, user.c.hashed_password,
-                    user.c.registered_at, user.c.date_knockout, user.c.profile_img,
-                    user.c.is_active, user.c.is_superuser, user.c.is_verified).where(user.c.id == user_id)
-
-    result = await session.execute(querry)
-    user_data = result.fetchone()
-
-    if user_data:
-        return dict(user_data._mapping)
-
-    return {"error": "user not found"}
+async def get_user(user_data: UserRead = Depends(current_user)):
+    try:
+        return user_data
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": "User not found"}
+        )
 
 
-@router.get("/user_img")
-async def get_img(user_id: int, session: AsyncSession = Depends(get_async_session)):
-    querry = select(user.c.profile_img, user.c.login).where(
-        user.c.id == user_id)
-    result = await session.execute(querry)
-    user_data = result.fetchone()
-
-    if user_data:
-        return dict(user_data._mapping)
-
-    return {"error": "user not found"}
+@router.get("/user_info_all", response_model=UserReadAll)
+async def get_user_all(user_data: UserReadAll = Depends(current_user)):
+    try:
+        return user_data
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": "User not found"}
+        )
 
 
-@router.get("/user_request")
-async def get_requests(user_id: int, session: AsyncSession = Depends(get_async_session)):
-    querry = select(request.c.city_name, request.c.date_request,
-                    request.c.responce).where(request.c.user_id == user_id)
-    result = await session.execute(querry)
-    user_data = result.fetchall()
+@router.get("/user_image", response_model=UserImg)
+async def get_img(user_data: UserImg = Depends(current_user)):
+    try:
+        return user_data
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": "User not found"}
+        )
 
-    if user_data:
-        return [dict(row._mapping) for row in user_data]
 
-    return {"error": "user not found"}
+@router.get("/user_requests", response_model=UserRequests)
+async def get_requests(user_data: UserRequests = Depends(current_user)):
+    try:
+        return user_data
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": "User not found"}
+        )
 
 
 @router.post("/change_password")
-async def set_new_pswrd(user_data: ChangePswrd, session: AsyncSession = Depends(get_async_session)):
-    querry = update(user).where(user.c.id == user_data.user_id).values(
-        hashed_password=user_data.new_password)
-    result = await session.execute(querry)
-    await session.commit()
+async def set_new_pswrd(user_data: ChangePswrd, user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
+    try:
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        hash_pswrd = pwd_context.hash(user_data.new_password)
+        querry = update(user).where(user.c.id == user_info.id).values(
+            hashed_password=hash_pswrd)
+        await session.execute(querry)
+        await session.commit()
 
-    if result.rowcount == 0:
+        return {"status": "Password update"}
+    except:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="user not found"
+            detail={"error": "User not found"}
         )
 
-    return {"status": "password update"}
 
+@router.post("/change_image")
+async def set_new_img(user_data: ChangeImg, user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
+    try:
+        querry = update(user).where(user.c.id == user_info.id).values(
+            profile_img=user_data.new_img_path)
+        await session.execute(querry)
+        await session.commit()
 
-@router.post("/change_img")
-async def set_new_img(user_data: ChangeImg, session: AsyncSession = Depends(get_async_session)):
-    querry = update(user).where(user.c.id == user_data.user_id).values(
-        profile_img=user_data.new_img_path)
-    result = await session.execute(querry)
-    await session.commit()
-
-    if result.rowcount == 0:
+        return {"status": "Image update"}
+    except:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="user not found"
+            detail={"error": "User not found"}
         )
-
-    return {"status": "image update"}
 
 
 @router.post("/change_email")
-async def set_new_email(user_data: ChangeEmail, session: AsyncSession = Depends(get_async_session)):
-    querry = update(user).where(user.c.id == user_data.user_id).values(
-        email=user_data.new_email)
-    result = await session.execute(querry)
-    await session.commit()
+async def set_new_email(user_data: ChangeEmail, user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
+    try:
+        querry = update(user).where(user.c.id == user_info.id).values(
+            email=user_data.new_email)
+        await session.execute(querry)
+        await session.commit()
 
-    if result.rowcount == 0:
+        return {"status": "Email update"}
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": "Email length is invalid"}
+        )
+    except:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="user not found"
+            detail={"error": "User not found"}
         )
-
-    return {"status": "email update"}

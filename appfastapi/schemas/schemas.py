@@ -1,19 +1,21 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from pydantic.networks import EmailStr
 from fastapi_users import schemas
+from datetime import datetime
+
 
 class ChangePswrd(BaseModel):
-    user_id : int
-    new_password : str
+    new_password: str
+
 
 class ChangeImg(BaseModel):
-    user_id : int
     new_img_path: str
-    
+
+
 class ChangeEmail(BaseModel):
-    user_id : int
-    new_email : str
+    new_email: str
+
 
 class UserRead(schemas.BaseUser[int]):
     id: int
@@ -22,6 +24,27 @@ class UserRead(schemas.BaseUser[int]):
     is_active: bool = True
     is_superuser: bool = False
     is_verified: bool = False
+
+
+class UserReadAll(BaseModel):
+    id: int
+    login: str
+    hashed_password: str
+    registered_at: datetime
+    date_knockout: datetime
+    profile_img: str | None
+    is_active: bool
+    is_superuser: bool
+    is_verified: bool
+
+
+class UserImg(BaseModel):
+    profile_img: str | None
+    login: str
+
+
+class UserRequests(BaseModel):
+    responses: List[int] | None
 
 
 class UserCreate(schemas.BaseUserCreate):
