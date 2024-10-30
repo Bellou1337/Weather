@@ -1,19 +1,19 @@
 from fastapi import HTTPException, APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from appfastapi.database.database import get_async_session
 from sqlalchemy import select, update
-from appfastapi.models.models import request, user
-from appfastapi.schemas.schemas import UserRead, UserReadAll, UserImg, UserRequests, ChangePswrd, ChangeImg, ChangeEmail
-from appfastapi.auth.auth import fastapi_users
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
+
+from appfastapi.database import get_async_session
+from appfastapi.models import request, user
+from appfastapi.schemas import UserRead, UserReadAll, UserImg, UserRequests, ChangePswrd, ChangeImg, ChangeEmail
+from appfastapi.dependencies import current_user
+
 
 router = APIRouter(
     prefix="/db",
     tags=["database"]
 )
-
-current_user = fastapi_users.current_user()
 
 
 @router.get("/user_info", response_model=UserRead)

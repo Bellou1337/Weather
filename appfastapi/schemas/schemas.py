@@ -26,16 +26,11 @@ class UserRead(schemas.BaseUser[int]):
     is_verified: bool = False
 
 
-class UserReadAll(BaseModel):
-    id: int
-    login: str
+class UserReadAll(UserRead):
     hashed_password: str
     registered_at: datetime
     date_knockout: datetime
     profile_img: str | None
-    is_active: bool
-    is_superuser: bool
-    is_verified: bool
 
 
 class UserImg(BaseModel):
