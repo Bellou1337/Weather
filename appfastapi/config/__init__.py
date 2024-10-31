@@ -14,8 +14,12 @@ config = Configure(default_config={
         "email": "",
         "password": ""
     },
-    "TOKEN": {
-        "key": "",
+    "OpenWeatherMap": {
+        "token": "",
+    },
+    "Redis": {
+        "host": "localhost",
+        "port": 6379
     }
 
 })

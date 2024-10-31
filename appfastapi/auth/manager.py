@@ -42,7 +42,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
                 }
         )
         
-        smtp_sender.send_HTML_mail(user.email, "Вы вошли", html.body.decode())
+        smtp_sender.send_HTML_mail_task(user.email, "Вы вошли", html.body.decode())
 
     async def on_after_login(self, user: User, request = Optional[Request], response = None):
         pass

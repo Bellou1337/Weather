@@ -1,6 +1,18 @@
 import smtplib
 from email.message import EmailMessage
 
+from appfastapi.mycelery import app
+
+@app.task()
+def send_text_mail_task(server, port, email, password, to_email, subject, text_message):
+    sender = SMTPSender(server, port, email, password)
+    sender.send_text_mail(to_email, subject, text_message)
+
+@app.task()
+def send_HTML_mail_task(server, port, email, password, to_email, subject, html):
+    sender = SMTPSender(server, port, email, password)
+    sender.send_HTML_mail(to_email, subject, html)
+
 class SMTPSender():
     _server: str
     _port: int
@@ -37,3 +49,9 @@ class SMTPSender():
             mail_server.login(self._email, self._password)
 
             mail_server.sendmail(self._email, to_email, msg.as_string().encode('utf-8'))
+    
+    def send_text_mail_task(self, to_email: str, subject: str, text_message: str):
+        send_text_mail_task.delay(self._server, self._port, self._email, self._password, to_email, subject, text_message)
+    
+    def send_HTML_mail_task(self, to_email: str, subject: str, html: str):
+        send_HTML_mail_task.delay(self._server, self._port, self._email, self._password, to_email, subject, html)
