@@ -6,4 +6,3 @@ script.py.mako
 alembic
 alembic.ini
 config.ini
-.env

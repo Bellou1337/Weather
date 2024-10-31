@@ -13,6 +13,9 @@ config = Configure(default_config={
         "port": 587,
         "email": "",
         "password": ""
+    },
+    "TOKEN": {
+        "key": "",
     }
 
 })

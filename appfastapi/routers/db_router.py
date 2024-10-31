@@ -2,12 +2,12 @@ from fastapi import HTTPException, APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import insert, update, func, select
+from sqlalchemy import insert, update, select
 from appfastapi.database import get_async_session
 from appfastapi.models import request, user
 from appfastapi.schemas import UserRead, UserReadAll, UserImg, UserRequests, ChangePswrd, ChangeImg, ChangeEmail, UserRequest
 from appfastapi.dependencies import current_user
-
+from appfastapi.openweathermap.api import get_weather
 
 router = APIRouter(
     prefix="/db",
@@ -19,7 +19,7 @@ router = APIRouter(
 async def get_user(user_data: UserRead = Depends(current_user)):
     try:
         return user_data
-    except:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"detail": "User not found"}
@@ -30,7 +30,7 @@ async def get_user(user_data: UserRead = Depends(current_user)):
 async def get_user_all(user_data: UserReadAll = Depends(current_user)):
     try:
         return user_data
-    except:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"detail": "User not found"}
@@ -41,7 +41,7 @@ async def get_user_all(user_data: UserReadAll = Depends(current_user)):
 async def get_img(user_data: UserImg = Depends(current_user)):
     try:
         return user_data
-    except:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"detail": "User not found"}
@@ -52,7 +52,7 @@ async def get_img(user_data: UserImg = Depends(current_user)):
 async def get_requests(user_data: UserRequests = Depends(current_user)):
     try:
         return user_data
-    except:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"detail": "User not found"}
@@ -73,7 +73,7 @@ async def set_new_pswrd(user_data: ChangePswrd, user_info=Depends(current_user),
         await session.commit()
 
         return {"detail": "Password update"}
-    except:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"detail": "User not found"}
@@ -89,7 +89,7 @@ async def set_new_img(user_data: ChangeImg, user_info=Depends(current_user), ses
         await session.commit()
 
         return {"detail": "Image update"}
-    except:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"detail": "User not found"}
@@ -114,7 +114,7 @@ async def set_new_email(user_data: ChangeEmail, user_info=Depends(current_user),
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"detail": "Email length is invalid"}
         )
-    except:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"detail": "User not found"}
@@ -122,7 +122,7 @@ async def set_new_email(user_data: ChangeEmail, user_info=Depends(current_user),
 
 
 @router.post("/add_request")
-async def add_new_request(user_data: UserRequest, user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
+async def add_new_request(user_data: UserRequest = Depends(get_weather) , user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
     try:
         user_data.date_request = user_data.date_request.replace(tzinfo=None)
         request_stmt = insert(request).values(user_data.dict())
@@ -149,7 +149,7 @@ async def add_new_request(user_data: UserRequest, user_info=Depends(current_user
         await session.commit()
 
         return {"detail": "Request successfully added"}
-    except:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={

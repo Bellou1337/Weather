@@ -7,8 +7,10 @@ from datetime import datetime
 
 class UserRequest(BaseModel):
     city_name: str
-    date_request: datetime
-    responce: dict
+    date_request: datetime = None
+    responce: dict = None
+
+
 
 class ChangePswrd(BaseModel):
     new_password: str
