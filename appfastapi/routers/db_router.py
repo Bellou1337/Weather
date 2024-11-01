@@ -7,7 +7,8 @@ from appfastapi.database import get_async_session
 from appfastapi.models import request, user
 from appfastapi.schemas import UserRead, UserReadAll, UserImg, UserRequests, ChangePswrd, ChangeImg, ChangeEmail, UserRequest
 from appfastapi.dependencies import current_user
-from appfastapi.openweathermap.api import get_weather
+from appfastapi.openweathermap.api import weather_now, weather_the_future
+from typing import Dict
 
 router = APIRouter(
     prefix="/db",
@@ -48,14 +49,32 @@ async def get_img(user_data: UserImg = Depends(current_user)):
         )
 
 
-@router.get("/user_requests", response_model=UserRequests)
-async def get_requests(user_data: UserRequests = Depends(current_user)):
+@router.get("/user_requests", response_model=Dict)
+async def get_requests(user_data: UserRequests = Depends(current_user), session: AsyncSession = Depends(get_async_session)):
     try:
-        return user_data
-    except Exception:
+        responses = user_data.responses
+
+        all_responses = []
+
+        for index in responses:
+            query = select(request.c.city_name, request.c.date_request,
+                           request.c.responce).where(request.c.id == index)
+            result = await session.execute(query)
+            result_data = result.fetchall()
+
+            all_responses.append([dict(row._mapping) for row in result_data])
+
+        return {"responses": all_responses}
+
+    except HTTPException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"detail": "User not found"}
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"detail": "error on the server something with requests "}
         )
 
 
@@ -73,10 +92,16 @@ async def set_new_pswrd(user_data: ChangePswrd, user_info=Depends(current_user),
         await session.commit()
 
         return {"detail": "Password update"}
-    except Exception:
+    except HTTPException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"detail": "User not found"}
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"detail": "server error something with the data"}
         )
 
 
@@ -89,10 +114,15 @@ async def set_new_img(user_data: ChangeImg, user_info=Depends(current_user), ses
         await session.commit()
 
         return {"detail": "Image update"}
-    except Exception:
+    except HTTPException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"detail": "User not found"}
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"detail": "server error something with the data"}
         )
 
 
@@ -114,15 +144,20 @@ async def set_new_email(user_data: ChangeEmail, user_info=Depends(current_user),
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"detail": "Email length is invalid"}
         )
-    except Exception:
+    except HTTPException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"detail": "User not found"}
         )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"detail": "server error something with the data"}
+        )
 
 
 @router.post("/add_request")
-async def add_new_request(user_data: UserRequest = Depends(get_weather) , user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
+async def add_new_request(user_data: UserRequest = Depends(weather_now), user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
     try:
         user_data.date_request = user_data.date_request.replace(tzinfo=None)
         request_stmt = insert(request).values(user_data.dict())
@@ -139,7 +174,7 @@ async def add_new_request(user_data: UserRequest = Depends(get_weather) , user_i
         result_array = result_data['responses']
 
         if len(result_array) == 10:
-            result_array = result_array[1:]
+            result_array = result_array[:-1]
 
         result_array = [request_id] + result_array
 
@@ -151,7 +186,12 @@ async def add_new_request(user_data: UserRequest = Depends(get_weather) , user_i
         return {"detail": "Request successfully added"}
     except Exception:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 "detail": "Failed to add request due to invalid data or server error"}
         )
+
+
+@router.post("/add_weekly_request")
+async def add_weakly_request(user_data = Depends(weather_the_future)):
+    return user_data
