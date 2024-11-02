@@ -28,6 +28,11 @@ class ChangeEmail(BaseModel):
 class ChangeEmailData(BaseModel):
     detail: str
 
+class UserInfo(BaseModel):
+    login: str
+    email: EmailStr
+    profile_img: str | None
+    is_superuser: bool = False
 
 class UserRead(schemas.BaseUser[int]):
     id: int

@@ -20,6 +20,9 @@ config = Configure(default_config={
     "Redis": {
         "host": "redis",
         "port": 6379
+    },
+    "Miscellaneous": {
+        "Secret": "",
+        "token_expire": 3600
     }
-
 })

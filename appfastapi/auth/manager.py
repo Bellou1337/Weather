@@ -6,9 +6,7 @@ from fastapi_users import BaseUserManager, IntegerIDMixin, exceptions
 from appfastapi.database import User, get_user_db
 from appfastapi.config import config
 from appfastapi.smtp import SMTPSender
-from appfastapi.general_data import templates
-
-SECRET = "mycrutoisecret"
+from appfastapi.general_data import templates, SECRET
 
 smtp_sender = SMTPSender(config["SMTP"]["server"], config["SMTP"]["port"], config["SMTP"]["email"], config["SMTP"]["password"])
 

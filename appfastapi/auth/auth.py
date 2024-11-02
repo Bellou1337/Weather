@@ -2,12 +2,15 @@ from fastapi_users.authentication import CookieTransport, JWTStrategy, Authentic
 from fastapi_users import FastAPIUsers
 from appfastapi.database import User
 from .manager import get_user_manager
+from appfastapi.general_data import SECRET
+from appfastapi.config import config
 
-cookie_transport = CookieTransport(cookie_max_age=3600)
-SECRET = "f1e9ec2d84e898724cd2838a5b04316f8497b4e5cc4209bde9b02fceb866449f"
+TOKEN_EXPIRE = config.get("Miscellaneous", "token_expire")
+
+cookie_transport = CookieTransport(cookie_max_age=TOKEN_EXPIRE)
 
 def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=SECRET, lifetime_seconds=3600)
+    return JWTStrategy(secret=SECRET, lifetime_seconds=TOKEN_EXPIRE)
 
 
 

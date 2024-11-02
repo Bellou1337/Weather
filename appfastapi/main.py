@@ -4,7 +4,7 @@ from appfastapi.routers import auth_router, db_router
 from fastapi.responses import HTMLResponse
 
 from .general_data import templates
-from .schemas import UserRead
+from .schemas import UserRead, UserInfo
 from .dependencies import current_user
 
 app = FastAPI(
@@ -20,25 +20,7 @@ app.include_router(
 
 app.include_router(db_router.router)
 
-@app.get('/', response_class=HTMLResponse)
-async def root(request: Request = None, user: UserRead = Depends(current_user)):
-    return templates.TemplateResponse(
-        request=request, name="pages/home.html", context={
-            "user": user
-        }
-    )
 
-# from .database import redis_
-# import random
-
-# @app.get('/test/{id}')
-# async def test(id: int):
-#     cache = redis_.get(f"test:{id}")
-
-#     if cache:
-#         return {"res": int(cache)}
-    
-#     res = random.randint(0, 100)
-#     redis_.set(f"test:{id}", res, 5)
-
-#     return {"res": res}
+@app.get('/', response_model=UserInfo)
+async def root(request: Request = None, user: UserInfo = Depends(current_user)):
+    return user
