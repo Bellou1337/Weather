@@ -32,6 +32,15 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     ):
         print(f"User {user.id} has forgot their password. Reset token: {token}")
 
+        html = templates.TemplateResponse(
+            request=request, name="email/forgot_password.html", context={
+                "username": user.login,
+                "token": token
+                }
+        )
+        
+        smtp_sender.send_HTML_mail_task(user.email, "Сброс пароля", html.body.decode())
+
     async def on_after_request_verify(
         self, user: User, token: str, request: Optional[Request] = None
     ):
