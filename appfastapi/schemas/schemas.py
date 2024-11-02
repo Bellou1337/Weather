@@ -5,23 +5,28 @@ from fastapi_users import schemas
 from datetime import datetime
 
 
-class UserRequest(BaseModel):
-    city_name: str
-    date_request: datetime = None
-    responce: dict = None
-
-
-
 class ChangePswrd(BaseModel):
     new_password: str
+
+
+class ChangePswrdData(BaseModel):
+    detail: str
 
 
 class ChangeImg(BaseModel):
     new_img_path: str
 
 
+class ChangeImgData(BaseModel):
+    detail: str
+
+
 class ChangeEmail(BaseModel):
     new_email: str
+
+
+class ChangeEmailData(BaseModel):
+    detail: str
 
 
 class UserRead(schemas.BaseUser[int]):
@@ -46,7 +51,12 @@ class UserImg(BaseModel):
 
 
 class UserRequests(BaseModel):
-    responses: List[int] | None
+    responses: List[str] | None
+
+
+class WeatherRequest(BaseModel):
+    city_name: str
+    date_time: datetime
 
 
 class UserCreate(schemas.BaseUserCreate):
@@ -58,5 +68,28 @@ class UserCreate(schemas.BaseUserCreate):
     is_verified: Optional[bool] = False
 
 
+class WeatherInfoData(BaseModel):
+    date_time: str
+    temperature: float
+    temp_min: float
+    temp_max: float
+    pressure: int
+    humidity: int
+    weather: str
+    wind_speed: float
+
+
+class WeatherInfo(BaseModel):
+    detail: WeatherInfoData
+
+
+class GetRequests(BaseModel):
+    detail: List[WeatherInfoData]
+
+
 class UserUpdate(schemas.BaseUserUpdate):
+    pass
+
+
+class NewEmail(BaseModel):
     pass

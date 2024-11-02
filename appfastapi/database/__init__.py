@@ -1,2 +1,2 @@
 from .database import *
-from .redis import rd as redis_
+from .redis import RedisTools as redis_

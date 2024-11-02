@@ -4,11 +4,13 @@ from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import insert, update, select
 from appfastapi.database import get_async_session
-from appfastapi.models import request, user
-from appfastapi.schemas import UserRead, UserReadAll, UserImg, UserRequests, ChangePswrd, ChangeImg, ChangeEmail, UserRequest
+from appfastapi.models import user
+from appfastapi.schemas import UserRead, UserReadAll, UserImg, UserRequests, ChangePswrd, ChangeImg, ChangeEmail
+from appfastapi.schemas import WeatherInfo, ChangeEmailData, ChangeImgData, ChangePswrdData, GetRequests
 from appfastapi.dependencies import current_user
-from appfastapi.openweathermap.api import weather_now, weather_the_future
+from appfastapi.openweathermap.api import weather_the_future
 from typing import Dict
+from appfastapi.database.redis import RedisTools
 
 router = APIRouter(
     prefix="/db",
@@ -49,22 +51,18 @@ async def get_img(user_data: UserImg = Depends(current_user)):
         )
 
 
-@router.get("/user_requests", response_model=Dict)
-async def get_requests(user_data: UserRequests = Depends(current_user), session: AsyncSession = Depends(get_async_session)):
+@router.get("/get_user_requests", response_model=GetRequests)
+async def get_requests(user_data: UserRequests = Depends(current_user)):
     try:
         responses = user_data.responses
 
         all_responses = []
 
-        for index in responses:
-            query = select(request.c.city_name, request.c.date_request,
-                           request.c.responce).where(request.c.id == index)
-            result = await session.execute(query)
-            result_data = result.fetchall()
+        for response in responses:
+            data = RedisTools.get_request(response)
+            all_responses.append(data)
 
-            all_responses.append([dict(row._mapping) for row in result_data])
-
-        return {"responses": all_responses}
+        return {"detail": all_responses}
 
     except HTTPException:
         raise HTTPException(
@@ -78,7 +76,7 @@ async def get_requests(user_data: UserRequests = Depends(current_user), session:
         )
 
 
-@router.post("/change_password")
+@router.post("/change_password", response_model=ChangePswrdData)
 async def set_new_pswrd(user_data: ChangePswrd, user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
     try:
         if len(user_data.new_password) < 6:
@@ -105,7 +103,7 @@ async def set_new_pswrd(user_data: ChangePswrd, user_info=Depends(current_user),
         )
 
 
-@router.post("/change_image")
+@router.post("/change_image", response_model=ChangeImgData)
 async def set_new_img(user_data: ChangeImg, user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
     try:
         stmt = update(user).where(user.c.id == user_info.id).values(
@@ -126,7 +124,7 @@ async def set_new_img(user_data: ChangeImg, user_info=Depends(current_user), ses
         )
 
 
-@router.post("/change_email")
+@router.post("/change_email", response_model=ChangeEmailData)
 async def set_new_email(user_data: ChangeEmail, user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
     try:
 
@@ -156,42 +154,33 @@ async def set_new_email(user_data: ChangeEmail, user_info=Depends(current_user),
         )
 
 
-@router.post("/add_request")
-async def add_new_request(user_data: UserRequest = Depends(weather_now), user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
+@router.post("/get_weather_info", response_model=WeatherInfo)
+async def add_new_request(key=Depends(weather_the_future), user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
     try:
-        user_data.date_request = user_data.date_request.replace(tzinfo=None)
-        request_stmt = insert(request).values(user_data.dict())
-        result = await session.execute(request_stmt)
+
+        query = select(user.c.responses).where(user.c.id == user_info.id)
+        result = await session.execute(query)
+        result_data = result.fetchone()
+        result_dict = dict(result_data._mapping)
+        result_arr = result_dict['responses']
+        if result_arr == None:
+            result_arr = []
+        elif len(result_arr) == 10:
+            result_arr = result_arr[: -1]
+
+        result_arr = [key] + result_arr
+
+        stmt = update(user).where(
+            user.c.id == user_info.id).values(responses=result_arr)
+        await session.execute(stmt)
         await session.commit()
 
-        request_id = result.inserted_primary_key[0]
+        data = RedisTools.get_request(key)
+        return {"detail": data}
 
-        current_responses_query = select(
-            user.c.responses).where(user.c.id == user_info.id)
-        current_responses_result = await session.execute(current_responses_query)
-        result_data = current_responses_result.fetchone()
-        result_data = dict(result_data._mapping)
-        result_array = result_data['responses']
-
-        if len(result_array) == 10:
-            result_array = result_array[:-1]
-
-        result_array = [request_id] + result_array
-
-        user_stmt = update(user).where(user.c.id == user_info.id).values(
-            responses=result_array)
-        await session.execute(user_stmt)
-        await session.commit()
-
-        return {"detail": "Request successfully added"}
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 "detail": "Failed to add request due to invalid data or server error"}
         )
-
-
-@router.post("/add_weekly_request")
-async def add_weakly_request(user_data = Depends(weather_the_future)):
-    return user_data
