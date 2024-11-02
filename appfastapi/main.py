@@ -27,3 +27,18 @@ async def root(request: Request = None, user: UserRead = Depends(current_user)):
             "user": user
         }
     )
+
+# from .database import redis_
+# import random
+
+# @app.get('/test/{id}')
+# async def test(id: int):
+#     cache = redis_.get(f"test:{id}")
+
+#     if cache:
+#         return {"res": int(cache)}
+    
+#     res = random.randint(0, 100)
+#     redis_.set(f"test:{id}", res, 5)
+
+#     return {"res": res}

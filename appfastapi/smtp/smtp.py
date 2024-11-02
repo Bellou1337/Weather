@@ -1,17 +1,6 @@
 import smtplib
 from email.message import EmailMessage
-
-from appfastapi.mycelery import app
-
-@app.task()
-def send_text_mail_task(server, port, email, password, to_email, subject, text_message):
-    sender = SMTPSender(server, port, email, password)
-    sender.send_text_mail(to_email, subject, text_message)
-
-@app.task()
-def send_HTML_mail_task(server, port, email, password, to_email, subject, html):
-    sender = SMTPSender(server, port, email, password)
-    sender.send_HTML_mail(to_email, subject, html)
+from appfastapi.mycelery import send_HTML_mail_task, send_text_mail_task
 
 class SMTPSender():
     _server: str

@@ -5,7 +5,7 @@ from appfastapi.schemas.schemas import UserRequest
 from datetime import datetime
 
 
-token = config['TOKEN']['key']
+token = config['OpenWeatherMap']['token']
 
 
 async def get_weather_data_now(city_name: str):
