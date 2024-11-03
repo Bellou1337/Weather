@@ -5,14 +5,6 @@ from fastapi_users import schemas
 from datetime import datetime
 
 
-class ChangePswrd(BaseModel):
-    new_password: str
-
-
-class ChangePswrdData(BaseModel):
-    detail: str
-
-
 class ChangeImg(BaseModel):
     new_img_path: str
 
@@ -28,11 +20,13 @@ class ChangeEmail(BaseModel):
 class ChangeEmailData(BaseModel):
     detail: str
 
+
 class UserInfo(BaseModel):
     login: str
     email: EmailStr
     profile_img: str | None
     is_superuser: bool = False
+
 
 class UserRead(schemas.BaseUser[int]):
     id: int
@@ -46,7 +40,6 @@ class UserRead(schemas.BaseUser[int]):
 class UserReadAll(UserRead):
     hashed_password: str
     registered_at: datetime
-    date_knockout: datetime
     profile_img: str | None
 
 

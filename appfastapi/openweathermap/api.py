@@ -29,7 +29,6 @@ async def weather_the_future(data: WeatherRequest):
         key_search = f"weather:{data.city_name}-{dt_search}"
         print(key_search)
         cached_data = RedisTools.get_request(key_search)
-
         if cached_data:
             return key_search
 
@@ -58,6 +57,10 @@ async def weather_the_future(data: WeatherRequest):
 
         cached_data = RedisTools.get_request(key_search)
         if cached_data:
+            all_cities = RedisTools.get_city_list()
+            if data.city_name.encode() not in all_cities:
+                RedisTools.add_city_to_list(data.city_name)
+
             return key_search
 
         raise Exception(

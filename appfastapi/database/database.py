@@ -24,7 +24,6 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     hashed_password = Column(String, nullable=False)
     registered_at = Column(TIMESTAMP, default=datetime.utcnow)
     responses = Column(ARRAY(Integer))
-    date_knockout = Column(TIMESTAMP, default=datetime.utcnow)
     profile_img = Column(String, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     is_superuser = Column(Boolean, default=False, nullable=False)

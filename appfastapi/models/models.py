@@ -12,7 +12,6 @@ user = Table(
     Column("hashed_password", String, nullable=False),
     Column("responses", ARRAY(String)),
     Column("registered_at", TIMESTAMP, default=datetime.utcnow()),
-    Column("date_knockout", TIMESTAMP, default=datetime.utcnow()),
     Column("profile_img", String, nullable=True),
     Column("is_active", Boolean, default=True, nullable=False),
     Column("is_superuser", Boolean, default=False, nullable=False),

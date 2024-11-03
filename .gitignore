@@ -6,3 +6,8 @@ script.py.mako
 alembic
 alembic.ini
 config.ini
+README.md
+.env
+celerybeat-schedule.bak
+celerybeat-schedule.dat
+celerybeat-schedule.dir

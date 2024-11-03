@@ -18,7 +18,7 @@ config = Configure(default_config={
         "token": "",
     },
     "Redis": {
-        "host": "redis",
+        "host": "localhost",
         "port": 6379
     },
     "Miscellaneous": {

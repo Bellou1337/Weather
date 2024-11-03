@@ -14,5 +14,11 @@ class RedisTools:
     def get_request(cls, key: str):
         data = cls.__redis_connect.get(key)
         return loads(data) if data else None
-        
-        
+    
+    @classmethod
+    def add_city_to_list(cls,city_name:str):
+        cls.__redis_connect.lpush("cities",city_name)
+    
+    @classmethod
+    def get_city_list(cls):
+        return cls.__redis_connect.lrange("cities",0,-1)

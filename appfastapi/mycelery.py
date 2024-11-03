@@ -2,6 +2,8 @@ from celery import Celery
 
 import smtplib
 from email.message import EmailMessage
+
+
 # celery -A mycelery worker -P solo -l info
 # celery -A mycelery flower
 
@@ -34,3 +36,5 @@ def send_HTML_mail_task(server, port, email, password, to_email, subject, html):
         mail_server.login(email, password)
 
         mail_server.sendmail(email, to_email, msg.as_string().encode('utf-8'))
+        
+        

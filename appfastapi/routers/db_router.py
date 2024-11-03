@@ -1,12 +1,11 @@
 from fastapi import HTTPException, APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import insert, update, select
+from sqlalchemy import update, select
 from appfastapi.database import get_async_session
 from appfastapi.models import user
-from appfastapi.schemas import UserRead, UserReadAll, UserImg, UserRequests, ChangePswrd, ChangeImg, ChangeEmail
-from appfastapi.schemas import WeatherInfo, ChangeEmailData, ChangeImgData, ChangePswrdData, GetRequests
+from appfastapi.schemas import UserImg, UserRequests, ChangeImg, ChangeEmail
+from appfastapi.schemas import WeatherInfo, ChangeEmailData, ChangeImgData, GetRequests
 from appfastapi.dependencies import current_user
 from appfastapi.openweathermap.api import weather_the_future
 from typing import Dict
@@ -16,28 +15,6 @@ router = APIRouter(
     prefix="/db",
     tags=["database"]
 )
-
-
-@router.get("/user_info", response_model=UserRead)
-async def get_user(user_data: UserRead = Depends(current_user)):
-    try:
-        return user_data
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={"detail": "User not found"}
-        )
-
-
-@router.get("/user_info_all", response_model=UserReadAll)
-async def get_user_all(user_data: UserReadAll = Depends(current_user)):
-    try:
-        return user_data
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={"detail": "User not found"}
-        )
 
 
 @router.get("/user_image", response_model=UserImg)
@@ -73,33 +50,6 @@ async def get_requests(user_data: UserRequests = Depends(current_user)):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={"detail": "error on the server something with requests "}
-        )
-
-
-@router.post("/change_password", response_model=ChangePswrdData)
-async def set_new_pswrd(user_data: ChangePswrd, user_info=Depends(current_user), session: AsyncSession = Depends(get_async_session)):
-    try:
-        if len(user_data.new_password) < 6:
-            return {"detail": "Password length is invalid"}
-
-        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        hash_pswrd = pwd_context.hash(user_data.new_password)
-        stmt = update(user).where(user.c.id == user_info.id).values(
-            hashed_password=hash_pswrd)
-        await session.execute(stmt)
-        await session.commit()
-
-        return {"detail": "Password update"}
-    except HTTPException:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={"detail": "User not found"}
-        )
-
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"detail": "server error something with the data"}
         )
 
 
