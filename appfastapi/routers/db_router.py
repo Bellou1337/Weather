@@ -134,3 +134,16 @@ async def add_new_request(key=Depends(weather_the_future), user_info=Depends(cur
             detail={
                 "detail": "Failed to add request due to invalid data or server error"}
         )
+
+
+@router.get("/get_cities")
+async def get_cities_list():
+    try:
+        redis_cities = RedisTools.get_city_list()
+        decoded_cities = [city.decode('utf-8') for city in redis_cities]
+        return {"detail": decoded_cities}
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"detail": "Error while getting cities list"}
+        )
