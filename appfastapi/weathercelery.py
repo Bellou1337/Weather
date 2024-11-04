@@ -18,7 +18,7 @@ app.conf.update(
     beat_schedule={
         "fetch-weather-every-24-hours": {
             "task": "appfastapi.weathercelery.fetch_and_store_weather_data",
-            "schedule": 60,
+            "schedule": 86400,
         }
     }
 )

@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import update, select
 from appfastapi.database import get_async_session
 from appfastapi.models import user
-from appfastapi.schemas import UserImg, UserRequests, ChangeImg, ChangeEmail
+from appfastapi.schemas import UserImg, UserRequests, ChangeImg, ChangeEmail, GetCities
 from appfastapi.schemas import WeatherInfo, ChangeEmailData, ChangeImgData, GetRequests
 from appfastapi.dependencies import current_user
 from appfastapi.openweathermap.api import weather_the_future
@@ -136,7 +136,7 @@ async def add_new_request(key=Depends(weather_the_future), user_info=Depends(cur
         )
 
 
-@router.get("/get_cities")
+@router.get("/get_cities", response_model=GetCities)
 async def get_cities_list():
     try:
         redis_cities = RedisTools.get_city_list()

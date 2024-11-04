@@ -5,6 +5,10 @@ from fastapi_users import schemas
 from datetime import datetime
 
 
+class GetCities(BaseModel):
+    detail: List[str]
+
+
 class ChangeImg(BaseModel):
     new_img_path: str
 
