@@ -10,7 +10,6 @@ from .dependencies import current_user
 app = FastAPI(
     title = "Weather API"
 )
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(
     auth_router.router,

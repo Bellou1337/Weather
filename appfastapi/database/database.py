@@ -9,8 +9,7 @@ from sqlalchemy import Integer, Column, String, TIMESTAMP, Boolean, ARRAY
 from datetime import datetime
 from appfastapi.config import config
 
-DATABASE_URL = f"postgresql+asyncpg://{config['Database']['DB_USER']}:{config['Database']['DB_PASS']}@{
-    config['Database']['DB_HOST']}:{config['Database']['DB_PORT']}/{config['Database']['DB_NAME']}"
+DATABASE_URL = f"postgresql+asyncpg://{config['Database']['DB_USER']}:{config['Database']['DB_PASS']}@{config['Database']['DB_HOST']}:{config['Database']['DB_PORT']}/{config['Database']['DB_NAME']}"
 
 
 class Base(DeclarativeBase):

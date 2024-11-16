@@ -7,7 +7,7 @@ from email.message import EmailMessage
 # celery -A mycelery worker -P solo -l info
 # celery -A mycelery flower
 
-app = Celery('mycelery', broker='redis://localhost:6379/0')
+app = Celery('mycelery', broker='redis://redis:6379/0')
 app.conf.broker_connection_retry_on_startup = True
 
 @app.task(name='mycelery.send_text_mail_task')
